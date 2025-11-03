@@ -1,10 +1,3 @@
-debug = function (log_txt) {
-    if (window.console != undefined) {
-        console.log(log_txt);
-    }
-}
-// DELETE?
-
 $_GET = new Array
 _get_set = function (_data)
 {
@@ -28,14 +21,13 @@ else
 		_get_set(_Variables[_s])
 	}
 }
-// I might change my mind on the logic here and make None = White...
 var player = "None";
 
 if ($_GET['player']) {
    player = $_GET['player'];
 }
 
-var moveNumber = 1;  // keep this up-to-date
+var moveNumber = 1;
 
 var i = 0;
 var piece_sw = i++, piece_sb = i++, 
@@ -45,8 +37,7 @@ var piece_sw = i++, piece_sb = i++,
     piece_wn = i++, piece_bn = i++,
     piece_wr = i++, piece_br = i++,
     piece_wp = i++, piece_bp = i++,
-    piece_sbh = i++, piece_swh = i++,
-    board_1 = i++, board_2 = i++, board_3 = i++, board_4=i++;
+    board_4=i++;
 
 var hasWhiteKingMoved = "false";
 var hasBlackKingMoved = "false";
@@ -91,11 +82,6 @@ function getColour(piece) {
 var names = new Array();
 var images = new Array();
 
-//names[piece_sw] = "assets40/light square_40.png";
-//names[piece_sb] = "assets40/dark square_40.png";
-//names[piece_swh] = "assets40/light highlight_40.png";
-//names[piece_sbh] = "assets40/dark highlight_40.png";
-
 names[piece_wq] = "assets40/white queen_40.png";
 names[piece_bq] = "assets40/black queen_40.png";
 names[piece_wk] = "assets40/white king_40.png";
@@ -109,9 +95,6 @@ names[piece_br] = "assets40/black rook_40.png";
 names[piece_wp] = "assets40/white pawn_40.png";
 names[piece_bp] = "assets40/black pawn_40.png";
     
-//names[board_1] = "assets40/board_01_40.png";
-//names[board_2] = "assets40/board_02_40.png";
-//names[board_3] = "assets40/board_03_40.png";
 names[board_4] = "board_04.jpg";
 
 for (var i = 0; i < names.length; i++) {
@@ -126,15 +109,10 @@ function validate() {
    var datumTexts = {"wname":"White's name", "bname":"Black's name",
                      "wemail":"White's email", "bemail":"Black's email"};
 
-   // Okay, go through
    for (var key in datumTexts) {
-      // is key set?
-      debug("Validating " + key + " = '" + document.getElementById(key).value + "'");
-
       if (document.getElementById(key).value == "") {
          missingData = missingData + datumTexts[key] + "; ";
       } else {
-         // Remember to copy into the GET bit
          $_GET[key] = document.getElementById(key).value;
       }
    }
@@ -147,103 +125,20 @@ function validate() {
    return 1;
 }
 
-/**
-   Sends via a php call to the server
- */
-function sendOLD() {
-
-   debug("Sending");
-
-   var address = "url=http://sucs.org/~will/BetterEmailChess/index.html";
-
-   if (!validate()) {
-      return;
-   }
-
-   // Change the button text to Sending move..., and also disable it
-   var moveValue = document.getElementById("send").innerHTML;
-   document.getElementById("send").innerHTML = "Sending move...";
-   document.getElementById("send").disabled = 1;
-
-   // FIXME Well this is ad hoc!
-   // TODO use escape more consistently
-   $_GET['bname'] = $_GET['bname'].replace(/ /g, "_");
-   $_GET['wname'] = $_GET['wname'].replace(/ /g, "_");
-
-   // Get the current list of moves, and add to them
-   var moves = 'moves=' + get_all_moves();  // get_move comes from draw.js atm
-   var namesEmails = "player=" + get_next_player() + 
-                     "&number=" + moveNumber + 
-                     "&wname=" + $_GET['wname'] + "&bname=" + $_GET['bname'] + 
-        "&wemail=" + $_GET['wemail'] + "&bemail=" + $_GET['bemail'] + "&message=" + get_message();
-
-   var pretty = escape(draw_html_table());
-   var args = address + "&" + namesEmails + "&" + moves + "&pretty=" + pretty + "&move=" + moveValue;
-   var http = false;
-
-    debug(">>>>> pretty = " + draw_html_table());
-    
-   if(navigator.appName == "Microsoft Internet Explorer") {
-       http = new ActiveXObject("Microsoft.XMLHTTP");
-   } else {
-       http = new XMLHttpRequest();
-   }
-    
-   http.onreadystatechange = function() {
-	if (this.readyState == 4 && this.status == 200) {
-	    debug(">>> status = " + this.status + " and readyState= " + this.readyState);
-	    // And change back again.
-	    // TODO helpful to set to SENT, but I need to handle errors here too!
-	    document.getElementById("send").innerHTML = "Move sent";
-	    //document.getElementById("send").disabled = 1;
-	    alert(this.responseText);
-	}
-    };    
-
-
-   debug(">>>>> " + moveValue);
-
-    // async
-    //http.open("GET", "/sendmail3.php?" + args, true);
-    http.open("POST", "sendmail4.php", true);
-    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    debug(">> Sending...");
-    http.send(args);
-    debug(">> Sent...");
-}
-
-
 function send() {
-   debug("Sending -- new version");
-
-   var address = "url=http://sucs.org/~will/BetterEmailChess/index.html";
-
    if (!validate()) {
       return;
    }
 
-   // Change the button text to Sending move..., and also disable it
    var moveValue = document.getElementById("send").innerHTML;
    document.getElementById("send").innerHTML = "Sending move...";
    document.getElementById("send").disabled = 1;
 
-   // FIXME Well this is ad hoc!
-   // TODO use escape more consistently
    $_GET['bname'] = $_GET['bname'].replace(/ /g, "_");
    $_GET['wname'] = $_GET['wname'].replace(/ /g, "_");
 
-   // Get the current list of moves, and add to them
-   var moves = 'moves=' + get_all_moves();  // get_move comes from draw.js atm
-   var namesEmails = "player=" + get_next_player() + 
-                     "&number=" + moveNumber + 
-                     "&wname=" + $_GET['wname'] + "&bname=" + $_GET['bname'] + 
-        "&wemail=" + $_GET['wemail'] + "&bemail=" + $_GET['bemail'] + "&message=" + get_message();
+   var moves = 'moves=' + get_all_moves();
 
-   var pretty = escape(draw_html_table());
-   var args = address + "&" + namesEmails + "&" + moves + "&pretty=" + pretty + "&move=" + moveValue;
-   var http = false;
-
-    
     var played_player = $_GET['wname'];
     var other_player = $_GET['bname'];
     var to_address = $_GET['bemail'];
@@ -253,9 +148,8 @@ function send() {
 	to_address = $_GET['wemail'];
     }
     
-    // TODO un-escape message
     var address =
-	'http://www.betteremailchess.co.uk/?' + 
+	'https://www.betteremailchess.co.uk/?' + 
         'player=' + get_next_player() +
 	'%26wname=' + $_GET['wname'] +
 	'%26bname=' + $_GET['bname']  +
@@ -273,17 +167,14 @@ function send() {
 
 
 
-// coords of the pawn which jumped two spaces, in just the last move
 var pawnJumpX = -1,
    pawnJumpY = -1;
 
 var enPassantDone = false;
 
-// state
 var selectedX = -1,
    selectedY = -1;
 
-// move made
 var moveFromX = -1,
    moveFromY = -1,
    moveToX = -1,
@@ -304,7 +195,6 @@ for (var i = 0; i < 8; i++) {
 var piece_taken = -1;
 var currentMoveString = "";
 
-// x, y
 positions[0][0] = piece_br;
 positions[1][0] = piece_bn;
 positions[2][0] = piece_bb;
@@ -380,7 +270,6 @@ function get_all_moves() {
 }
 
 function get_message() {
-   debug("Message sent = " + document.getElementById("extraMessage").value);
    return (escape(document.getElementById("extraMessage").value));
 }
 
@@ -457,7 +346,6 @@ function getMoveString(movePiece, fromX, fromY, toX, toY, takenPiece) {
 }
 
 function do_move(canvas, move) {
-   // extract the coords
    var fromX = letterAssoc[move[0]];
    var fromY = move[1];
    var toX = letterAssoc[move[2]];
@@ -484,13 +372,10 @@ function do_move(canvas, move) {
 function start_do_moves(canvas) {
    canvas = document.getElementById("myDrawing");
 
-   // Apply moves, step by step
    moves = $_GET['moves'];
 
-   // split by ,:
    var move_array = moves.split(",");
-
-    do_next_move(move_array, 0);
+   do_next_move(move_array, 0);
 }
 
 function do_next_move(move_array, i) {
@@ -522,42 +407,21 @@ function do_next_move(move_array, i) {
     update_move_box();
   
     if (i > move_array.length - 3) {
-	// Slowly draw the latest move.
 	setTimeout(function(){
 	    do_next_move(move_array, i+1);
 	}, 500);
     } else {
 	do_next_move(move_array, i+1);
     }
-
-    // It's actually a bit annoying having all the moves replayed. But having the latest one replayed is
-    // useful.
-//    var delay = 100;
-//    if (i > move_array.length - 3) {
-//	delay = 1000;
-//   }
-//    setTimeout(function(){
-//	do_next_move(move_array, i+1);
-//    }, delay);
 }
 
 function finish_do_moves(i) {
    canvas = document.getElementById("myDrawing");
-
    moves = $_GET['moves'];
-
-   draw_board(canvas, canvas.width, canvas.height /*, moves*/);
-
-   // And update moveLabel
+   draw_board(canvas, canvas.width, canvas.height);
    document.getElementById("moveLabel").innerHTML = "Move: " + (i + 1);
-
-   // This is defined in arguments.js, and used by email.js
    moveNumber = i + 1;
-
-   // More hackery... reset the taken piece
    piece_taken = -1;
-
-   // yet more, reset the enpassant blip
    enPassantDone = false;
 }
 
@@ -565,22 +429,14 @@ function retry_move(canvas) {
    if (moveToX > -1) {
       if (enPassantDone) {
          positions[moveFromX][moveFromY] = positions[moveToX][moveToY];
-
          positions[moveToX][moveToY] = -1;
-
-         // and where will the taken pawn come from? 
          positions[pawnJumpX][pawnJumpY] = piece_taken;
-
          enPassantDone = false;
-
       } else {
-
          positions[moveFromX][moveFromY] = positions[moveToX][moveToY];
          positions[moveToX][moveToY] = piece_taken;
-
       }
 
-      // was the move a queening? 
       if (queened == "true") {
          var colour = getColour(positions[moveFromX][moveFromY]);
          if (colour == "white") {
@@ -588,11 +444,9 @@ function retry_move(canvas) {
          } else {
             positions[moveFromX][moveFromY] = piece_bp;
          }
-
          queened = "false";
       }
 
-      // was the move a castle?
       if (hasCastled(positions, moveFromX, moveFromY, moveToX, moveToY) == "true") {
          if (moveToX == 6) {
             positions[7][moveToY] = positions[5][moveToY];
@@ -610,19 +464,10 @@ function retry_move(canvas) {
    moveToX = -1;
    moveToY = -1;
    draw_board(canvas, canvas.width, canvas.height /*, 1*/);
-
    update_move_box();
 }
 
-/**************************************************
-      Some helper functions
-****/
-
 function isPlayersPiece(x, y) {
-
-   debug("isPlayersPiece: x = " + x + ",  y = " + y);
-
-
    var p = positions[x][y];
    if (p == -1)
       return false;
@@ -633,19 +478,16 @@ function isPlayersPiece(x, y) {
 }
 
 
-/**************************************************/
 function click(canvas, x, y) {
    var w = canvas.width / 8;
    var sx = screenXY(Math.floor(x / w));
    var sy = screenXY(Math.floor(y / w));
 
    if (moveFromX > -1) {
-      // If we can, move this piece
       if (moveToX == -1) {
          var moveValidity = move_is_valid(positions, moveFromX, moveFromY, sx, sy, "1");
 
          if (moveValidity == "restart") {
-            // we've touched another of our pieces, so, just reset
             retry_move(canvas);
          } else if (moveValidity == "castle_in_check") {
             alert("You can't castle while in check");
@@ -667,39 +509,30 @@ function click(canvas, x, y) {
 
             update_move_box();
          } else {
-            debug(moveValidity);
             retry_move(canvas);
          }
       } else {
          retry_move(canvas);
       }
    } else {
-      // However, we only want to select our piece here
       if (isPlayersPiece(sx, sy)) {
          moveFromX = sx;
          moveFromY = sy;
-
-         // and remember to update the move box
          update_move_box();
       }
    }
 
-   draw_board(canvas, canvas.width, canvas.height /*, 1*/);
+   draw_board(canvas, canvas.width, canvas.height);
 }
 
 function update_move_box() {
    var enableSend = false;
-
    var moveT = "";
-
    var castled = "";
-
    var enPassantStr = "";
-
    if (enPassantDone) {
       enPassantStr += " <b>en passant</b>";
    }
-
    var queenStr = "";
    if (queened == "true") {
       queenStr = " <b>queened</b>";
@@ -724,7 +557,6 @@ function update_move_box() {
    if (moveT != "") {
       sendText = "move " + moveT;
 
-      // Now add in a taking-thing
       if (piece_taken != -1) {
          var takenPieceName = getPieceType(piece_taken);
          sendText = sendText + " taking " + takenPieceName;
@@ -777,7 +609,6 @@ function update_move_box() {
 
 
 function count_pieces(board, colour, type) {
-   // Now just draw some squares for the moment...
    var count = 0;
    for (var y = 0; y < 8; y++) {
       for (var x = 0; x < 8; x++) {
@@ -796,15 +627,12 @@ var queened = "false";
 function perform_move(moveFromX, moveFromY, moveToX, moveToY) {
 
    var enPassant = isMoveEnPassant(positions, moveFromX, moveFromY, moveToX, moveToY);
-
-   // make move
    if (enPassant == true) {
       piece_taken = positions[pawnJumpX][pawnJumpY];
    } else {
       piece_taken = positions[moveToX][moveToY];
    }
 
-   // need this to undo of course
    queened = hasQueened(positions, moveFromX, moveFromY, moveToX, moveToY);
 
    if (piece_taken != -1) {
@@ -812,7 +640,6 @@ function perform_move(moveFromX, moveFromY, moveToX, moveToY) {
    }
 
    if (hasCastled(positions, moveFromX, moveFromY, moveToX, moveToY) == "true") {
-      // which side? we know it must be legal at this point
       if (moveToX == 6) {
          positions[5][moveToY] = positions[7][moveToY];
          positions[7][moveToY] = -1;
@@ -834,11 +661,9 @@ function perform_move(moveFromX, moveFromY, moveToX, moveToY) {
       }
    }
 
-   // Do move
    positions[moveToX][moveToY] = positions[moveFromX][moveFromY];
    positions[moveFromX][moveFromY] = -1;
 
-   // enpassant
    if (enPassant == true) {
       positions[pawnJumpX][pawnJumpY] = -1;
 
@@ -848,7 +673,6 @@ function perform_move(moveFromX, moveFromY, moveToX, moveToY) {
       enPassantDone = false;
    }
 
-   // have we just moved the king?
    if (getPieceType(positions[moveToX][moveToY]) == "king") {
        if (isBlack(positions[moveToX][moveToY])) {
 	   hasBlackKingMoved = "true";
@@ -865,15 +689,11 @@ function close_board(canvas) {
 }
 
 function draw_board(canvas, width, height /*, pieces*/) {
-   // get the context
    var context = canvas.getContext('2d');
-
-   // first, compute our piece width
    var w = width / 8;
 
    context.drawImage(images[board_4], 0, 0, width, height);
 
-   // Now just draw some squares for the moment...
    for (var y = 0; y < 8; y++) {
       for (var x = 0; x < 8; x++) {
          if (positions[screenXY(x)][screenXY(y)] > -1) {
@@ -892,18 +712,15 @@ function screenXY(c) {
 }
 
 function render_html(background, colour, name) {
-    //return name;
     return '<span style="padding: 0px 7px 0px 7px; width: 100px; height: 100px; font-size: 20pt; font-family: monospace; color: ' + colour + '; background-color: ' + background + ';">' + name + '</span>';
 }
 
 function render_html_td(background, colour, name) {
-    //return name;
     return '<td align="center" style="width: 30px; height: 30px; font-size: 20pt; background-color: ' + background + ';">' + name + '</td>';
 }
 
 
 function render_piece(isBlackBackground, piece) {
-    debug('???? ' + piece);
     var colour = "?";
     var name = "?";
     if (piece == -1) {
@@ -954,7 +771,6 @@ function render_piece(isBlackBackground, piece) {
 }
 
 function render_piece_unicode(isBlackBackground, piece) {
-    debug('???? ' + piece);
     var colour = "?";
     var name = "?";
     if (piece == -1) {
@@ -1004,59 +820,6 @@ function render_piece_unicode(isBlackBackground, piece) {
     return render_html_td(background, colour, name);
 }
 
-
-function draw_html() {
-    var html = "<div style='margin: 30px;'>";
-
-    isBlackBackground = 1;
-    for (var y = 0; y < 8; y++) {
-	//html += '-----------------<br>';
-	//html += '|';
-	for (var x = 0; x < 8; x++) {
-	    // Remember, this is the _other_ player's view of the board,
-	    // so we actually need to flip it around again.
-	    var column = 7 - screenXY(x);
-	    var row = 7 - screenXY(y);
-	    html += render_piece(isBlackBackground, positions[column][row]); // + '|';
-	    isBlackBackground = !isBlackBackground;
-	}
-	isBlackBackground = !isBlackBackground;
-	html += '<br>';
-    }
-    //html += '-----------------<br>';
-
-    html += '</div>';
-
-    debug(html);
-    return html;
-}
-
-function draw_html_table() {
-    var html = "<p><table border=0>";
-
-    isBlackBackground = 1;
-    for (var y = 0; y < 8; y++) {
-	//html += '-----------------<br>';
-	//html += '|';
-	html += '<tr valign="center">';
-	for (var x = 0; x < 8; x++) {
-	    // Remember, this is the _other_ player's view of the board,
-	    // so we actually need to flip it around again.
-	    var column = 7 - screenXY(x);
-	    var row = 7 - screenXY(y);
-	    html += render_piece_unicode(isBlackBackground, positions[column][row]); // + '|';
-	    isBlackBackground = !isBlackBackground;
-	}
-	isBlackBackground = !isBlackBackground;
-	html += '</tr>';
-    }
-    //html += '-----------------<br>';
-
-    html += '</table>';
-
-    debug(html);
-    return html;
-}
 function move_is_valid(board, fromX, fromY, toX, toY, checkcheck) {
    var p = board[fromX][fromY];
    if (!isPiece(p)) {
@@ -1071,7 +834,6 @@ function move_is_valid(board, fromX, fromY, toX, toY, checkcheck) {
       return "restart";
    }
 
-   // Okay! Get piece type, then...
    var type = getPieceType(p);
 
    if (type == "queen") {
@@ -1083,11 +845,8 @@ function move_is_valid(board, fromX, fromY, toX, toY, checkcheck) {
    } else if (type == "bishop") {
       return freedomDiagonal(board, fromX, fromY, toX, toY, 8);
    } else if (type == "king") {
-      // TODO! Kings have special freedoms
-      // And can affect other pieces, a little awkwardly (but, not too bad actually).
       return freedomKing(board, fromX, fromY, toX, toY);
    } else if (type == "pawn") {
-      //debug("Checking pawn");
       return freedomPawn(board, fromX, fromY, toX, toY, colour);
    }
 }
@@ -1106,7 +865,6 @@ function get_player() {
 
 function freedomKing(board, fromX, fromY, toX, toY) {
    if (fromY == toY && fromX == 4 && (toX == 6 || toX == 2) && (fromY == 0 || fromY == 7)) {
-       // need to check if already moved, took until 2018 for this bug to be noticed!
        if ((isWhite(positions[fromX][fromY]) && hasWhiteKingMoved == "true")
 	   || (isBlack(positions[fromX][fromY]) && hasBlackKingMoved == "true")) {
 	   return "castle_already_moved";
@@ -1141,9 +899,6 @@ function hasQueened(board, fromX, fromY, toX, toY) {
    return "false";
 }
 
-// FIXME This is poorly named. It should be, isabouttocastle.
-// 20181125: But do we check whether the king has moved and moved back again?
-//           Just add a global in here..?
 function hasCastled(board, fromX, fromY, toX, toY) {
    var piece = board[fromX][fromY];
    var type = getPieceType(piece);
@@ -1165,27 +920,21 @@ function hasDoneCastled(board, fromX, fromY, toX, toY) {
 }
 
 function freedomHorizontal(board, fromX, fromY, toX, toY, steps) {
-   // First, which direction are we to travel in? Four cases:
    var deltaX = 0,
       deltaY = 0;
 
    if (fromX < toX && fromY == toY) {
-      // Travel to the right
       deltaX = 1;
    } else if (fromX > toX && fromY == toY) {
-      // Travel to the left
       deltaX = -1;
    } else if (fromX == toX && fromY < toY) {
-      // Travel down
       deltaY = 1;
    } else if (fromX == toX && fromY > toY) {
-      // Travel up
       deltaY = -1;
    } else {
       return "false";
    }
 
-   // Now, we've set the adders, so make the move...
    return freedomUnlimitedSteps(board, fromX, fromY, toX, toY, deltaX, deltaY, steps);
 }
 
@@ -1200,7 +949,6 @@ function freedomHorizontalDiagonal(board, fromX, fromY, toX, toY) {
 }
 
 function freedomPawn(board, fromX, fromY, toX, toY, colour) {
-   // First, special en passant check
    if (pawnJumpX > -1 && pawnJumpY > -1) {
       if (toX == pawnJumpX && (
             toY == 2 && pawnJumpY == 3 ||
@@ -1209,7 +957,6 @@ function freedomPawn(board, fromX, fromY, toX, toY, colour) {
       }
    }
 
-   // Normal check
    var direction = 1;
    var baseRow = 1;
    if (colour == "white") {
@@ -1217,7 +964,6 @@ function freedomPawn(board, fromX, fromY, toX, toY, colour) {
       baseRow = 6;
    }
 
-   // first, diagonals
    var p = board[toX][toY];
 
    if (isPiece(p)) {
@@ -1229,11 +975,9 @@ function freedomPawn(board, fromX, fromY, toX, toY, colour) {
       }
    }
 
-   // So, move forward.
    if (fromY + direction == toY && fromX == toX) {
       return "true";
    } else if (fromY == baseRow && fromY + direction * 2 == toY && fromX == toX) {
-       // but need to check that there isn't a piece in the intermediate square!
        if (board[toX][fromY + direction] == -1) {
 	   return "true";
        }
@@ -1244,39 +988,29 @@ function freedomPawn(board, fromX, fromY, toX, toY, colour) {
 
 
 function freedomDiagonal(board, fromX, fromY, toX, toY, steps) {
-   // First, which direction are we to travel in? Four cases:
    var deltaX = 0,
       deltaY = 0;
 
    if (fromX < toX && fromY < toY) {
-      // Travel to the right, down
       deltaX = 1;
       deltaY = 1;
    } else if (fromX < toX && fromY > toY) {
-      // Travel to the right, up
       deltaX = 1;
       deltaY = -1;
    } else if (fromX > toX && fromY < toY) {
-      // Travel left, down
       deltaX = -1;
       deltaY = 1;
    } else if (fromX > toX && fromY > toY) {
-      // Travel left, up
       deltaX = -1;
       deltaY = -1;
    } else {
       return "false";
    }
 
-   // Now, we've set the adders, so make the move...
    return freedomUnlimitedSteps(board, fromX, fromY, toX, toY, deltaX, deltaY, steps);
 }
 
 
-/*
-  Special case, four to check. Eight to check that is.
-  Two across one way, one across another. 
-*/
 function freedomKnight(board, fromX, fromY, toX, toY) {
    if ((fromX + 2 == toX && fromY + 1 == toY) ||
       (fromX + 2 == toX && fromY - 1 == toY) ||
@@ -1323,14 +1057,10 @@ function isOpponentCheckMate(board) {
    if (isOpponentCheck(board) == "false")
       return "false";
 
-   // Now, go through all of the opponent's pieces...
    for (var x = 0; x < 8; x++) {
       for (var y = 0; y < 8; y++) {
          var piece = board[x][y];
          if (piece > -1 && getColour(piece) == get_next_player()) {
-            // So for each piece the question is, try each poss
-            // move, and see if we can find one that doesn't
-            // leave us in check.
             var moveC = checkMateMoveCheck(board, x, y, get_next_player());
 
             if (moveC == "true") {
@@ -1347,7 +1077,6 @@ function isPlayerCheckMate(board) {
    if (isPlayerCheck(board) == "false")
       return "false";
 
-   // Now, go through all of the opponent's pieces...
    for (var x = 0; x < 8; x++) {
       for (var y = 0; y < 8; y++) {
          var piece = board[x][y];
@@ -1366,30 +1095,21 @@ function isPlayerCheckMate(board) {
 function checkMateMoveCheck(board, x, y, colour) {
    for (var toX = 0; toX < 8; toX++) {
       for (var toY = 0; toY < 8; toY++) {
-         // Is this a legal move?
          var legalMove = move_is_valid(board, x, y, toX, toY, 0);
 
          if (legalMove == "true" || legalMove == "enpassant") {
-            // Okay, copy the board, then apply the move, then go
-            // NOTE: for the moment do something simple here?
-            // I don't think it's possible to castle your way from
-            // check. 
             var newBoard = copyBoard(board);
 
-            // apply move
             newBoard[toX][toY] = newBoard[x][y];
             newBoard[x][y] = -1;
 
-            // en passant, additional take
             if (legalMove == "enpassant") {
                newBoard[pawnJumpX][pawnJumpY] == -1;
             }
 
-            // Now check if we are in check?
             var stillCheck = isCheck(newBoard, colour);
 
             if (stillCheck != "true") {
-               debug("Escape by moving " + x + ", " + y + " to " + toX + ", " + toY);
                return "true";
             }
          }
@@ -1433,8 +1153,6 @@ function isMoveEnPassant(board, fromX, fromY, toX, toY) {
       return false;
    if (getPieceType(p) != "pawn")
       return false;
-   // Use a proxy here. We've moved diagonally, but in the
-   // place we've moved to, there's no piece.
    if (fromX != toX && board[toX][toY] == -1)
       return true;
    return false;
@@ -1446,16 +1164,12 @@ function wasMoveEnPassant(board, fromX, fromY, toX, toY) {
       return false;
    if (getPieceType(p) != "pawn")
       return false;
-   // Use a proxy here. We've moved diagonally, but in the
-   // place we've moved to, there's no piece.
    if (fromX != toX && board[toX][toY] == -1)
       return true;
    return false;
 }
 
 function isCheck(board, colour) {
-
-   // First, find the king!
    var kingX = -1,
       kingY = -1;
 
