@@ -1,7 +1,141 @@
-<html>
-  <head>
-  </head>
-  <body>
-    Coming soon
-  </body>
+<!DOCTYPE HTML>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1;">	
+<title>BetterEmailChess ~ W&amp;AH</title>
+<style type="text/css">
+  * {
+   font-size: 14px;
+   font-family:"DomaineText",Georgia,serif;
+  }
+  body {
+    background-color: #fffff0;
+  }
+</style>
+
+<script src="script.js"></script>
+ 
+<center>
+<span style="display: inline-block;">
+  <center>
+    <div>
+      <span id="moveLabel" name="moveLabel"> Move: 1</span>
+        ~
+      <a href = "index.html">New game</a> 
+    </div>
+    <br>
+    <table>
+      <tr>
+        <td></td>
+        <td> name </td> 
+        <td> email </td>
+      </tr>
+      <tr>
+        <td> White </td>
+        <td><input type="text" name="wname" id = "wname" size="10"/></td>
+        <td>
+           <input type="email" name="wemail" pattern="[^ @]*@[^ @]*" id = "wemail" size="25">
+        </td>
+      </tr>
+      <tr>
+        <td> Black </td>
+        <td><input type="text" name="bname" id = "bname" size="10"/></td>
+        <td>
+          <input type="email" name="bemail" pattern="[^ @]*@[^ @]*" id = "bemail" size="25">
+        </td>
+      </tr>
+    </table>
+    <p>
+    <span id="scoreLabel" name="scoreLabel"> score </span>
+    <br>
+    <div>
+      <canvas id="myDrawing" width="320" height="320"></canvas>
+    </div>
+
+    <p>
+    <button id="send" name="send" onclick="JavaScript:send();" type="button"></button>
+    <br>
+    <table>
+      <tr>
+	<td><span id="messageFromTitle" name="messageFromTitle"></span></td>
+	<td><div style="width: 300px"  id="messageFrom" name="messageFrom"></div></td>
+      </tr>
+      <tr>
+	<td><label for="extraMessage">Add message:</label></td>
+	<td><input type="text" id="extraMessage"/></td>
+      </tr>
+    </table>
+  </center>
+</span>
+
+<span style="display: inline-block; margin: 10px;">
+  <p>
+  <center>
+    <table>
+      <tr>
+	<td><span id="moveLabel4" name="moveLabel4"></span></td>
+	<td><span id="moveLabel3" name="moveLabel3"></span></td>
+      </tr>
+      <tr>
+	<td><canvas id="board4" width="200" height="200"></canvas></td>
+	<td><canvas id="board3" width="200" height="200"></canvas></td>
+      </tr>
+      <tr>
+	<td><span id="moveLabel2" name="moveLabel2"></span></td>
+	<td><span id="moveLabel1" name="moveLabel1"></span></td>
+      </tr>
+      <tr>
+	<td><canvas id="board2" width="200" height="200"></canvas></td>
+	<td><canvas id="board1" width="200" height="200"></canvas></td>
+      </tr>
+    </table>
+  </center>
+</span>
+</center>
+
+<script type="text/javascript">			
+  window.onload = function() {
+    var drawingCanvas = document.getElementById('myDrawing');
+    
+    // try adding a mouse listener
+    drawingCanvas.addEventListener("click", function(e) { 
+      cx = e.pageX - drawingCanvas.offsetLeft;
+      cy = e.pageY - drawingCanvas.offsetTop;  
+      click(drawingCanvas, cx, cy);
+    }, false);
+
+    // and now try drawing a board?
+    draw_board(drawingCanvas, 320, 320);
+  
+    if ($_GET['moves']) {
+      start_do_moves(drawingCanvas);  
+    }
+  
+    if (player != "None") {
+      document.getElementById('wname').value = $_GET['wname'];
+      document.getElementById('bname').value = $_GET['bname'];
+      document.getElementById('wemail').value = $_GET['wemail'];
+      document.getElementById('bemail').value = $_GET['bemail'];
+  
+      document.getElementById('bemail').disabled = 1;
+      document.getElementById('wemail').disabled = 1;
+      document.getElementById('bname').disabled = 1;
+      document.getElementById('wname').disabled = 1;
+    }
+
+    // Message box, if there is one
+    if ($_GET['message']) {
+      var fromPlayer = $_GET['bname'];
+      if (player == "black") {
+        fromPlayer = $_GET['wname'];
+      }
+      document.getElementById("messageFromTitle").innerHTML = "Message from " + fromPlayer + ":";
+      document.getElementById("messageFrom").innerHTML = unescape($_GET['message']).replace(/\+/g, " ");
+    }
+  
+    // This sets the Send button to disabled
+    update_move_box();
+  }
+</script>
+
+</body>
 </html>
