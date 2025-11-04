@@ -30,8 +30,7 @@ if ($_GET['player']) {
 var moveNumber = 1;
 
 var i = 0;
-var piece_sw = i++, piece_sb = i++, 
-    piece_wq = i++, piece_bq = i++,
+var piece_wq = i++, piece_bq = i++,
     piece_wk = i++, piece_bk = i++, 
     piece_wb = i++, piece_bb = i++,
     piece_wn = i++, piece_bn = i++,
@@ -41,6 +40,7 @@ var piece_sw = i++, piece_sb = i++,
 
 var hasWhiteKingMoved = "false";
 var hasBlackKingMoved = "false";
+var queened = "false";
 
 function isBlack(piece) {
    return piece % 2 != 0;
@@ -53,7 +53,6 @@ function isWhite(piece) {
 function isPiece(piece) {
    return piece >= piece_wq;
 }
-
 
 function getPieceType(piece) {
    var delta = piece % 2;
@@ -179,7 +178,6 @@ var moveFromX = -1,
    moveFromY = -1,
    moveToX = -1,
    moveToY = -1;
-
 
 var positions = new Array();
 for (var i = 0; i < 8; i++) {
@@ -402,7 +400,7 @@ function do_next_move(move_array, i) {
     
     document.getElementById("moveLabel").innerHTML = "Move: " + (i + 1);
     
-    draw_board(canvas, canvas.width, canvas.height /*, moves*/);
+    draw_board(canvas, canvas.width, canvas.height);
 
     update_move_box();
   
@@ -463,7 +461,7 @@ function retry_move(canvas) {
    moveFromY = -1;
    moveToX = -1;
    moveToY = -1;
-   draw_board(canvas, canvas.width, canvas.height /*, 1*/);
+   draw_board(canvas, canvas.width, canvas.height);
    update_move_box();
 }
 
@@ -621,8 +619,6 @@ function count_pieces(board, colour, type) {
 
    return count;
 }
-
-var queened = "false";
 
 function perform_move(moveFromX, moveFromY, moveToX, moveToY) {
 

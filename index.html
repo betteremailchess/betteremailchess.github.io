@@ -96,14 +96,12 @@
   window.onload = function() {
     var drawingCanvas = document.getElementById('myDrawing');
     
-    // try adding a mouse listener
     drawingCanvas.addEventListener("click", function(e) { 
       cx = e.pageX - drawingCanvas.offsetLeft;
       cy = e.pageY - drawingCanvas.offsetTop;  
       click(drawingCanvas, cx, cy);
     }, false);
 
-    // and now try drawing a board?
     draw_board(drawingCanvas, 320, 320);
   
     if ($_GET['moves']) {
@@ -122,7 +120,6 @@
       document.getElementById('wname').disabled = 1;
     }
 
-    // Message box, if there is one
     if ($_GET['message']) {
       var fromPlayer = $_GET['bname'];
       if (player == "black") {
@@ -132,7 +129,6 @@
       document.getElementById("messageFrom").innerHTML = unescape($_GET['message']).replace(/\+/g, " ");
     }
   
-    // This sets the Send button to disabled
     update_move_box();
   }
 </script>
