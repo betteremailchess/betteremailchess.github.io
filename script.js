@@ -96,7 +96,7 @@ names[piece_bp] = "assets40/black pawn_40.png";
     
 names[board_4] = "board_04.jpg";
 
-for (var i = 0; i < names.length; i++) {
+for (let i = 0; i < names.length; i++) {
   images[i] = new Image(40, 40);
   images[i].src = names[i];
 }
@@ -104,11 +104,10 @@ for (var i = 0; i < names.length; i++) {
 function validate() {
   var missingData = "";
 
-  var datums = new Array("wname", "bname", "wemail", "bemail");
   var datumTexts = {"wname":"White's name", "bname":"Black's name",
     "wemail":"White's email", "bemail":"Black's email"};
 
-  for (var key in datumTexts) {
+  for (let key in datumTexts) {
     if (document.getElementById(key).value == "") {
       missingData = missingData + datumTexts[key] + "; ";
     } else {
@@ -129,7 +128,6 @@ function send() {
     return;
   }
 
-  var moveValue = document.getElementById("send").innerHTML;
   document.getElementById("send").innerHTML = "Sending move...";
   document.getElementById("send").disabled = 1;
 
@@ -139,11 +137,9 @@ function send() {
   var moves = 'moves=' + get_all_moves();
 
   var played_player = $_GET['wname'];
-  var other_player = $_GET['bname'];
   var to_address = $_GET['bemail'];
   if  (get_next_player() == "white") {
     played_player = $_GET['bname'];
-    other_player = $_GET['wname'];
     to_address = $_GET['wemail'];
   }
     
@@ -180,12 +176,12 @@ var moveFromX = -1,
   moveToY = -1;
 
 var positions = new Array();
-for (var i = 0; i < 8; i++) {
+for (let i = 0; i < 8; i++) {
   positions[i] = new Array();
 }
 
-for (var i = 0; i < 8; i++) {
-  for (var j = 0; j < 8; j++) {
+for (let i = 0; i < 8; i++) {
+  for (let j = 0; j < 8; j++) {
     positions[i][j] = -1;
   }
 }
@@ -279,7 +275,6 @@ function getMoveString(movePiece, fromX, fromY, toX, toY, takenPiece) {
   moveT = takingPieceName + " ";
 
   var toY1 = toY + 1;
-  var fromY1 = fromY + 1;
 
   var castled = "";
 
@@ -331,8 +326,7 @@ function getMoveString(movePiece, fromX, fromY, toX, toY, takenPiece) {
   check = isOpponentOpponentCheck(positions);
   if (check == "true") {
     moveT = moveT + " <br><b>check</b>";
-    var checkmate = isPlayerCheckMate(positions);
-    if (checkmate == "true") {
+    if (isPlayerCheckMate(positions) == "true") {
       moveT = moveT + " <b>mate!</b>";
       alert("Check mate");
     }
@@ -367,10 +361,10 @@ function do_move(canvas, move) {
   currentMoveString = getMoveString(movingPiece, fromX, fromY, toX, toY, piece_taken);
 }
 
-function start_do_moves(canvas) {
+function start_do_moves(canvas) { // called from index.html
   canvas = document.getElementById("myDrawing");
 
-  moves = $_GET['moves'];
+  var moves = $_GET['moves'];
 
   var move_array = moves.split(",");
   do_next_move(move_array, 0);
@@ -386,9 +380,7 @@ function do_next_move(move_array, i) {
     
   do_move(canvas, move_array[i]);
     
-  var prev_board = move_array.length - i;
-    
-  for (var b = 1; b <= 4; b++) {
+  for (let b = 1; b <= 4; b++) {
     if (move_array.length - i >= b) {
       draw_board(
         document.getElementById("board" + b),
@@ -476,14 +468,14 @@ function isPlayersPiece(x, y) {
 }
 
 
-function click(canvas, x, y) {
+function click(canvas, x, y) {  // called from index.html
   var w = canvas.width / 8;
   var sx = screenXY(Math.floor(x / w));
   var sy = screenXY(Math.floor(y / w));
 
   if (moveFromX > -1) {
     if (moveToX == -1) {
-      var moveValidity = move_is_valid(positions, moveFromX, moveFromY, sx, sy, "1");
+      var moveValidity = move_is_valid(positions, moveFromX, moveFromY, sx, sy);
 
       if (moveValidity == "restart") {
         retry_move(canvas);
@@ -523,7 +515,7 @@ function click(canvas, x, y) {
   draw_board(canvas, canvas.width, canvas.height);
 }
 
-function update_move_box() {
+function update_move_box() { // called from index.html
   var enableSend = false;
   var moveT = "";
   var castled = "";
@@ -585,7 +577,7 @@ function update_move_box() {
   pieceName[4] = 'queen';
   var label = '';
 
-  for (var i = 0; i < 5; i++) {
+  for (let i = 0; i < 5; i++) {
     var name = pieceName[i];
     var pawnsPlus = (count_pieces(positions, get_player(), name) -
          count_pieces(positions, get_next_player(), name));
@@ -608,8 +600,8 @@ function update_move_box() {
 
 function count_pieces(board, colour, type) {
   var count = 0;
-  for (var y = 0; y < 8; y++) {
-    for (var x = 0; x < 8; x++) {
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 8; x++) {
       var piece = board[x][y];
       if (getColour(piece) == colour && getPieceType(piece) == type) {
         count++;
@@ -678,20 +670,14 @@ function perform_move(moveFromX, moveFromY, moveToX, moveToY) {
   }
 }
 
-function close_board(canvas) {
-  var context = canvas.getContext('2d');
-  context.fillStyle = 'Gray';
-  context.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-function draw_board(canvas, width, height /*, pieces*/) {
+function draw_board(canvas, width, height) { // called from index.html
   var context = canvas.getContext('2d');
   var w = width / 8;
 
   context.drawImage(images[board_4], 0, 0, width, height);
 
-  for (var y = 0; y < 8; y++) {
-    for (var x = 0; x < 8; x++) {
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 8; x++) {
       if (positions[screenXY(x)][screenXY(y)] > -1) {
         context.drawImage(images[positions[screenXY(x)][screenXY(y)]], x * w, y * w, w - 1, w - 1);
       }
@@ -707,116 +693,7 @@ function screenXY(c) {
   }
 }
 
-function render_html(background, colour, name) {
-  return '<span style="padding: 0px 7px 0px 7px; width: 100px; height: 100px; font-size: 20pt; font-family: monospace; color: ' + colour + '; background-color: ' + background + ';">' + name + '</span>';
-}
-
-function render_html_td(background, colour, name) {
-  return '<td align="center" style="width: 30px; height: 30px; font-size: 20pt; background-color: ' + background + ';">' + name + '</td>';
-}
-
-
-function render_piece(isBlackBackground, piece) {
-  var colour = "?";
-  var name = "?";
-  if (piece == -1) {
-    colour = "white";
-    name = "&nbsp;";
-  } else if (piece == piece_br) {
-    colour = "black";
-    name = "&#9820;"; //"R";
-  } else if (piece == piece_bn) {
-    colour = "black";
-    name = "&#9822;"; //"N";
-  } else if (piece == piece_bb) {
-    colour = "black";
-    name = "&#9821;"; //"B";
-  } else if (piece == piece_bq) {
-    colour = "black";
-    name = "&#9819;"; //"Q";
-  } else if (piece == piece_bk) {
-    colour = "black";
-    name = "&#9818;";
-  } else if (piece == piece_bp) {
-    colour = "black";
-    name = "&#9823;";
-  } else if (piece == piece_wr) {
-    colour = "white";
-    name = "&#9814;";
-  } else if (piece == piece_wn) {
-    colour = "white";
-    name = "&#9816;";
-  } else if (piece == piece_wb) {
-    colour = "white";
-    name = "&#9815;";
-  } else if (piece == piece_wq) {
-    colour = "white";
-    name = "&#9813;";
-  } else if (piece == piece_wk) {
-    colour = "white";
-    name = "&#9812;";
-  } else if (piece == piece_wp) {
-    colour = "white";
-    name = "&#9817;";
-  }
-  var background = '#d48b84';
-  if (isBlackBackground) {
-    background = '#af5348';
-  }
-  return render_html(background, colour, name);
-}
-
-function render_piece_unicode(isBlackBackground, piece) {
-  var colour = "?";
-  var name = "?";
-  if (piece == -1) {
-    colour = "white";
-    name = "&nbsp;";
-  } else if (piece == piece_br) {
-    colour = "black";
-    name = "&#9820;"; //"R";
-  } else if (piece == piece_bn) {
-    colour = "black";
-    name = "&#9822;"; //"N";
-  } else if (piece == piece_bb) {
-    colour = "black";
-    name = "&#9821;"; //"B";
-  } else if (piece == piece_bq) {
-    colour = "black";
-    name = "&#9819;"; //"Q";
-  } else if (piece == piece_bk) {
-    colour = "black";
-    name = "&#9818;";
-  } else if (piece == piece_bp) {
-    colour = "black";
-    name = "&#9823;";
-  } else if (piece == piece_wr) {
-    colour = "white";
-    name = "&#9814;";
-  } else if (piece == piece_wn) {
-    colour = "white";
-    name = "&#9816;";
-  } else if (piece == piece_wb) {
-    colour = "white";
-    name = "&#9815;";
-  } else if (piece == piece_wq) {
-    colour = "white";
-    name = "&#9813;";
-  } else if (piece == piece_wk) {
-    colour = "white";
-    name = "&#9812;";
-  } else if (piece == piece_wp) {
-    colour = "white";
-    name = "&#9817;";
-  }
-  var background = '#d48b84';
-  if (isBlackBackground) {
-    background = '#af5348';
-  }
-  return render_html_td(background, colour, name);
-}
-
-function move_is_valid(board, fromX, fromY, toX, toY, checkcheck) {
+function move_is_valid(board, fromX, fromY, toX, toY) {
   var p = board[fromX][fromY];
   if (!isPiece(p)) {
     return "No piece";
@@ -1025,7 +902,7 @@ function freedomKnight(board, fromX, fromY, toX, toY) {
 function freedomUnlimitedSteps(board, fromX, fromY, toX, toY, deltaX, deltaY, steps) {
   var x = fromX,
     y = fromY;
-  for (var i = 0; i < steps; i++) {
+  for (let i = 0; i < steps; i++) {
     x = x + deltaX;
     y = y + deltaY;
 
@@ -1053,8 +930,8 @@ function isOpponentCheckMate(board) {
   if (isOpponentCheck(board) == "false")
     return "false";
 
-  for (var x = 0; x < 8; x++) {
-    for (var y = 0; y < 8; y++) {
+  for (let x = 0; x < 8; x++) {
+    for (let y = 0; y < 8; y++) {
       var piece = board[x][y];
       if (piece > -1 && getColour(piece) == get_next_player()) {
         var moveC = checkMateMoveCheck(board, x, y, get_next_player());
@@ -1073,8 +950,8 @@ function isPlayerCheckMate(board) {
   if (isPlayerCheck(board) == "false")
     return "false";
 
-  for (var x = 0; x < 8; x++) {
-    for (var y = 0; y < 8; y++) {
+  for (let x = 0; x < 8; x++) {
+    for (let y = 0; y < 8; y++) {
       var piece = board[x][y];
       if (piece > -1 && getColour(piece) == get_player()) {
         var moveC = checkMateMoveCheck(board, x, y, get_player());
@@ -1089,10 +966,9 @@ function isPlayerCheckMate(board) {
 }
 
 function checkMateMoveCheck(board, x, y, colour) {
-  for (var toX = 0; toX < 8; toX++) {
-    for (var toY = 0; toY < 8; toY++) {
-      var legalMove = move_is_valid(board, x, y, toX, toY, 0);
-
+  for (let toX = 0; toX < 8; toX++) {
+    for (let toY = 0; toY < 8; toY++) {
+      let legalMove = move_is_valid(board, x, y, toX, toY);
       if (legalMove == "true" || legalMove == "enpassant") {
         var newBoard = copyBoard(board);
 
@@ -1118,12 +994,12 @@ function checkMateMoveCheck(board, x, y, colour) {
 
 function copyBoard(board) {
   var newBoard = new Array();
-  for (var i = 0; i < 8; i++) {
+  for (let i = 0; i < 8; i++) {
     newBoard[i] = new Array();
   }
 
-  for (var i = 0; i < 8; i++) {
-    for (var j = 0; j < 8; j++) {
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
       newBoard[i][j] = board[i][j];
     }
   }
@@ -1154,24 +1030,13 @@ function isMoveEnPassant(board, fromX, fromY, toX, toY) {
   return false;
 }
 
-function wasMoveEnPassant(board, fromX, fromY, toX, toY) {
-  var p = board[toX][toY];
-  if (p == -1)
-    return false;
-  if (getPieceType(p) != "pawn")
-    return false;
-  if (fromX != toX && board[toX][toY] == -1)
-    return true;
-  return false;
-}
-
 function isCheck(board, colour) {
   var kingX = -1,
     kingY = -1;
 
-  for (var x = 0; x < 8; x++) {
-    for (var y = 0; y < 8; y++) {
-      var piece = board[x][y];
+  for (let x = 0; x < 8; x++) {
+    for (let y = 0; y < 8; y++) {
+      let piece = board[x][y];
       if (getPieceType(piece) == "king" && getColour(piece) == colour) {
         kingX = x;
         kingY = y;
@@ -1179,11 +1044,11 @@ function isCheck(board, colour) {
     }
   }
 
-  for (var x = 0; x < 8; x++) {
-    for (var y = 0; y < 8; y++) {
-      var piece = board[x][y];
+  for (let x = 0; x < 8; x++) {
+    for (let y = 0; y < 8; y++) {
+      let piece = board[x][y];
       if (piece > -1 && getColour(piece) != colour) {
-        if (move_is_valid(board, x, y, kingX, kingY, 0) == "true") {
+        if (move_is_valid(board, x, y, kingX, kingY) == "true") {
           return "true";
         }
       }
