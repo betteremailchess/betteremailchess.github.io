@@ -55,20 +55,17 @@ function isPiece(piece) {
 }
 
 function getPieceType(piece) {
-  var delta = piece % 2;
-  piece = piece - delta;
-
-  if (piece == piece_wq) 
+  if (piece == piece_wq || piece == piece_bq) 
     return "queen";
-  else if (piece == piece_wk) 
+  else if (piece == piece_wk || piece == piece_bk) 
     return "king";
-  else if (piece == piece_wb)
+  else if (piece == piece_wb || piece == piece_bb)
     return "bishop";
-  else if (piece == piece_wn)
+  else if (piece == piece_wn || piece == piece_bn)
     return "knight";
-  else if (piece == piece_wr) 
+  else if (piece == piece_wr || piece == piece_br) 
     return "rook";
-  else if (piece == piece_wp)
+  else if (piece == piece_wp || piece == piece_bp)
     return "pawn";   
 }
 
@@ -581,7 +578,7 @@ function update_move_box() { // called from index.html
     var name = pieceName[i];
     var pawnsPlus = (count_pieces(positions, get_player(), name) -
          count_pieces(positions, get_next_player(), name));
-
+      
     var plus = '';
 
     if (pawnsPlus > 0)
@@ -602,7 +599,7 @@ function count_pieces(board, colour, type) {
   var count = 0;
   for (let y = 0; y < 8; y++) {
     for (let x = 0; x < 8; x++) {
-      var piece = board[x][y];
+	var piece = board[x][y];
       if (getColour(piece) == colour && getPieceType(piece) == type) {
         count++;
       }
